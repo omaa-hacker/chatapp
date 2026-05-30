@@ -1,17 +1,19 @@
 //  Create an Express app 
 const express = require('express');
 const app = express();
-const http = require("http").createServer(app);   //create the actual web server
+const http = require("http").createServer(app);
 
 // socket io connect to http 
-const io = require("socket.io")(http, { cors: { origin: "*" } });
+const io = require("socket.io")(http, { 
+  cors: { origin: "*" },
+  transports: ['websocket', 'polling']
+});
 
 // Serve static frontend files
 const path = require("path");
 app.use(express.static(path.join(__dirname, "../public")));
 
 const users = {};
-
 
 io.on('connection', socket =>{
   
@@ -34,7 +36,9 @@ io.on('connection', socket =>{
 
 })
 
-const PORT = process.env.PORT || 5000;  //Starts the combined server
+const PORT = process.env.PORT || 5000;
 http.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
 });
+
+module.exports = http;
