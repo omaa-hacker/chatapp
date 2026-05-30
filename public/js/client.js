@@ -10,27 +10,46 @@ const joinForm = document.getElementById("join-form");
 const nameInput = document.getElementById("nameInput");
 
 let name = localStorage.getItem("chatName");
+let isConnected = false;
 
-// If name exists in storage, auto-join and hide overlay
+// Hide overlay if name exists
 if (name) {
   joinOverlay.style.display = "none";
 }
 
-// Handle socket connection - rejoin with saved name
+// Wait for socket connection
 socket.on("connect", () => {
+  isConnected = true;
+  console.log("✅ Connected to server");
+  
+  // If name exists, auto-join
   if (name) {
     socket.emit("new-user-joined", name);
+  } else {
+    // No name, show overlay
+    joinOverlay.style.display = "flex";
   }
+});
+
+socket.on("disconnect", () => {
+  isConnected = false;
+  console.log("❌ Disconnected from server");
+});
+
+socket.on("connect_error", (error) => {
+  console.error("Connection error:", error);
 });
 
 // User name take input
 joinForm.addEventListener("submit", (e) => {
   e.preventDefault();
   name = nameInput.value.trim();
-  if (name) {
-    localStorage.setItem("chatName", name);  // Save name to storage
+  if (name && isConnected) {
+    localStorage.setItem("chatName", name);
     joinOverlay.style.display = "none";
     socket.emit("new-user-joined", name);
+  } else if (!isConnected) {
+    alert("Not connected to server. Please refresh the page.");
   }
 });
 
