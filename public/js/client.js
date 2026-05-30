@@ -9,13 +9,26 @@ const joinOverlay = document.getElementById("join-overlay");
 const joinForm = document.getElementById("join-form");
 const nameInput = document.getElementById("nameInput");
 
-let name;
+let name = localStorage.getItem("chatName");
+
+// If name exists in storage, auto-join and hide overlay
+if (name) {
+  joinOverlay.style.display = "none";
+}
+
+// Handle socket connection - rejoin with saved name
+socket.on("connect", () => {
+  if (name) {
+    socket.emit("new-user-joined", name);
+  }
+});
 
 // User name take input
 joinForm.addEventListener("submit", (e) => {
   e.preventDefault();
   name = nameInput.value.trim();
   if (name) {
+    localStorage.setItem("chatName", name);  // Save name to storage
     joinOverlay.style.display = "none";
     socket.emit("new-user-joined", name);
   }
