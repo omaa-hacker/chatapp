@@ -7,7 +7,8 @@ const http = require("http").createServer(app);   //create the actual web server
 const io = require("socket.io")(http, { cors: { origin: "*" } });
 
 // Serve static frontend files
-app.use(express.static("public"));
+const path = require("path");
+app.use(express.static(path.join(__dirname, "../public")));
 
 const users = {};
 
